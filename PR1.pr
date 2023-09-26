@@ -1,1 +1,18 @@
-import 
+import requests
+import hashlib
+
+# Открываем файл для чтения
+with open("log.txt", "r") as file1:
+    for line in file1:
+        username, password = line.strip().split(',') #Строка на имя пользователя и пароль
+        
+        sha1_hash = hashlib.sha1(password.encode()).hexdigest() #Хеш пароля
+        
+        response = requests.get(f'https://api.pwnedpasswords.com/range/{sha1_hash[:5]}')#Запрос к срвису
+        response_text = response.text
+        
+        # Проверка наличия хеша пароля в ответе
+        if sha1_hash[5:].upper() in response_text:
+            print(f"Утечка пароля у пользователя {username} обнаружена")
+        else:
+            print(f"Утечка пароля у пользователя {username} не обнаружена")
